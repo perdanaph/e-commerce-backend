@@ -15,15 +15,14 @@ use Laravel\Fortify\Rules\Password;
 class UserController extends Controller
 {
     public function register(Request $request) {
+        $request -> validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'username' => ['required', 'string', 'max:255', 'unique:users'],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'password' => ['required', 'string', new Password]
+        ]);
         try {
-            $request -> validate([
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'username' => ['required', 'string', 'max:255', 'unique:users'],
-                'phone' => ['nullable', 'string', 'max:255'],
-                'password' => ['required', 'string', new Password]
-            ]);
-
             User::create([
                 'name'=>$request->name,
                 'email'=>$request->email,
@@ -42,35 +41,31 @@ class UserController extends Controller
             ], 'Success Registered', 201);
         } catch (Exception $error) {
             return ResponFormatter::error([
-                'message' => 'Something went wrong',
+                'message' => 'Internal Server Error',
                 'error' => $error,
-            ], 'Fail', 500);
+            ], 'Error', 500);
         }
     }
 
     public function login(Request $request) {
+        $request->validate([
+            'email'=>'email|required',
+            'password'=>'required'
+        ]);
         try {
-            $request->validate([
-                'email'=>'email|required',
-                'password'=>'required'
-            ]);
-
-            $credentials = request(['email', 'password']);
-            
             $user = User::where('email', $request->email)->first();
-            
+            if(!$user) {
+                return ResponFormatter::error([
+                    'message'=>'cannot find your email'
+                ], 'Unauthorized', 400);
+            }
+
             if (!Hash::check($request->password, $user->password, [])) {
                 return ResponFormatter::error([
-                    'message' => 'Wrong Password',
-                    
-                ], 'Fail', 400);
+                    'message'=>'Wrong password',
+                ], 'Unauthorized', 400);
             }
-            if (!Auth::attempt($credentials)) {
-                return ResponFormatter::error([
-                    'message' => 'Field Email & Password Requeired',
-                    
-                ], 'Fail, BadRequest', 400);
-            }
+            
             $token = $user->createToken('authToken')->plainTextToken;
             return ResponFormatter::success([
                 'token' => $token,
@@ -79,9 +74,9 @@ class UserController extends Controller
             ], 'Success Authentication');
         } catch (Exception $error) {
             return ResponFormatter::error([
-                'message'=>'Internal Server Error',
+                'message'=> 'Internal Server Error',
                 'error'=>$error
-            ], 'Failed', 500);
+            ], 'Internal Server Error', 500);
         }
     }
 
@@ -90,19 +85,13 @@ class UserController extends Controller
     }
 
     public function update(Request $request) {
+        $request -> validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'username' => ['required', 'string', 'max:255', 'unique:users'],
+            'phone' => ['nullable', 'string', 'max:255'],
+        ]);
         try {
-            // $validation = Validator::make($request->all(), [
-            //     'name' => 'required',
-            //     'email' => 'required | email',
-            //     'username' => 'required',
-            //     'phone' => 'nullable'
-            // ]);
-
-            // if ($validation->fails()) {
-            //     return ResponFormatter::error([
-            //     ], 'name, email, username canot be omitted', 400);
-            // }
-
             $data = $request->all();
             $user = Auth::user();
             $user->update($data);
@@ -113,6 +102,7 @@ class UserController extends Controller
 
         } catch (Exception $error) {
             return ResponFormatter::error([
+                'message'=> 'Internal Server Error',
                 'error' => $error
             ], 'Internal Server Error', 500);
         }

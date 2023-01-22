@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function() {
     Route::get('users',[UserController::class, 'fetch']);
-    Route::put('users', [UserController::class, 'update']);
+    Route::post('users', [UserController::class, 'update']);
 });
 Route::get('products', [ProductController::class, 'all']);
 Route::get('categories', [ProductCategoryController::class, 'all']);
