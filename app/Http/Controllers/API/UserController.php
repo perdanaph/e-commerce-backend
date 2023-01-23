@@ -9,7 +9,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Rules\Password;
 
 class UserController extends Controller
@@ -106,5 +105,12 @@ class UserController extends Controller
                 'error' => $error
             ], 'Internal Server Error', 500);
         }
+    }
+
+    public function logout(Request $request) {
+        $request->user()->currentAccessToken()->delete();
+        return ResponFormatter::success([
+            'message'=> 'Token Has success Revoked'
+        ], 'Logout Success', 200);
     }
 }

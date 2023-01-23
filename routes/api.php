@@ -18,10 +18,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->group(function() {
-    Route::get('users',[UserController::class, 'fetch']);
+    Route::get('users', [UserController::class, 'fetch']);
     Route::post('users', [UserController::class, 'update']);
+    Route::post('logout', [userController::class, 'logout']);
 });
+
 Route::get('products', [ProductController::class, 'all']);
 Route::get('categories', [ProductCategoryController::class, 'all']);
+
 Route::post('register', [UserController::class, 'register']);
 Route::post('login', [UserController::class, 'login']);
