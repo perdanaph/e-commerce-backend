@@ -10,7 +10,8 @@ use Illuminate\Http\Request;
 
 class ProductCategoryController extends Controller
 {
-    public function all(Request $request) {
+    public function all(Request $request)
+    {
         $id = $request->input('id');
         $limit = $request->input('limit');
         $name = $request->input('name');
@@ -36,7 +37,7 @@ class ProductCategoryController extends Controller
         $category = ProductCategory::query();
 
         if ($name) {
-            $category->where('name', 'like', '%'.$name.'%');
+            $category->where('name', 'like', '%' . $name . '%');
         }
 
         if ($show_product) {

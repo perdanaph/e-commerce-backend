@@ -13,8 +13,9 @@ use Laravel\Fortify\Rules\Password;
 
 class UserController extends Controller
 {
-    public function register(Request $request) {
-        $request -> validate([
+    public function register(Request $request)
+    {
+        $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
@@ -23,20 +24,20 @@ class UserController extends Controller
         ]);
         try {
             User::create([
-                'name'=>$request->name,
-                'email'=>$request->email,
-                'username'=>$request->username,
-                'phone'=>$request->phone,
-                'password'=> Hash::make($request->password),
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->username,
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),
             ]);
 
             $user =  User::where('email', $request->email)->first();
             $token = $user->createToken('authToken')->plainTextToken;
 
             return ResponFormatter::success([
-                'token'=>$token,
-                'type_token'=>'Bearer ',
-                'data'=>$user,
+                'token' => $token,
+                'type_token' => 'Bearer ',
+                'data' => $user,
             ], 'Success Registered', 201);
         } catch (Exception $error) {
             return ResponFormatter::error([
@@ -46,25 +47,26 @@ class UserController extends Controller
         }
     }
 
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         $request->validate([
-            'email'=>'email|required',
-            'password'=>'required'
+            'email' => 'email|required',
+            'password' => 'required'
         ]);
         try {
             $user = User::where('email', $request->email)->first();
-            if(!$user) {
+            if (!$user) {
                 return ResponFormatter::error([
-                    'message'=>'cannot find your email'
+                    'message' => 'cannot find your email'
                 ], 'Unauthorized', 400);
             }
 
             if (!Hash::check($request->password, $user->password, [])) {
                 return ResponFormatter::error([
-                    'message'=>'Wrong password',
+                    'message' => 'Wrong password',
                 ], 'Unauthorized', 400);
             }
-            
+
             $token = $user->createToken('authToken')->plainTextToken;
             return ResponFormatter::success([
                 'token' => $token,
@@ -73,18 +75,20 @@ class UserController extends Controller
             ], 'Success Authentication');
         } catch (Exception $error) {
             return ResponFormatter::error([
-                'message'=> 'Internal Server Error',
-                'error'=>$error
+                'message' => 'Internal Server Error',
+                'error' => $error
             ], 'Internal Server Error', 500);
         }
     }
 
-    public function fetch(Request $request) {
+    public function fetch(Request $request)
+    {
         return ResponFormatter::success($request->user(), 'Success to get data Users');
     }
 
-    public function update(Request $request) {
-        $request -> validate([
+    public function update(Request $request)
+    {
+        $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
@@ -98,19 +102,19 @@ class UserController extends Controller
             return ResponFormatter::success([
                 $user
             ], 'Profile Success Updated');
-
         } catch (Exception $error) {
             return ResponFormatter::error([
-                'message'=> 'Internal Server Error',
+                'message' => 'Internal Server Error',
                 'error' => $error
             ], 'Internal Server Error', 500);
         }
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         $request->user()->currentAccessToken()->delete();
         return ResponFormatter::success([
-            'message'=> 'Token Has success Revoked'
+            'message' => 'Token Has success Revoked'
         ], 'Logout Success', 200);
     }
 }
