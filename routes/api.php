@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\ProductCategoryController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\TransactionController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,7 +21,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(function() {
     Route::get('users', [UserController::class, 'fetch']);
     Route::post('users', [UserController::class, 'update']);
-    Route::post('logout', [userController::class, 'logout']);
+    Route::post('logout', [UserController::class, 'logout']);
+    Route::get('transactions', [TransactionController::class, 'all']);
+    Route::post('checkout', [TransactionController::class, 'checkout']);
 });
 
 Route::get('products', [ProductController::class, 'all']);
